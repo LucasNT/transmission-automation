@@ -18,15 +18,27 @@ type Config struct {
     Username string
 }
 
-func main () {
-    var config Config
-    file,err := os.Open("./config.yaml");
+const CONFIG_PATH string = "./config.yaml"
+
+func readConfigsFromYaml( configPath string ) (Config,error){
+    var config Config;
+    file, err := os.Open(configPath);
     if err != nil {
-        panic(err)
+        return Config{}, err
     }
     decode := yaml.NewDecoder(file);
-    decode.Decode(&config);
-    fmt.Print(config)
+    decode.Decode(&config)
+    return config,nil
+}
+
+func main () {
+    var config Config;
+    var err error;
+    
+    if config,err = readConfigsFromYaml(CONFIG_PATH); err != nil {
+        panic( err )
+    }
+
     endpoint, err := url.Parse(config.Url)
     if err != nil {
         panic(err)
@@ -36,7 +48,6 @@ func main () {
     if err != nil {
         panic(err)
     }
-    fmt.Println("a")
     ok, serverVersion, serverMinimumVersion, err := tbt.RPCVersion(context.TODO())
     if err != nil {
         panic(err)
@@ -50,7 +61,7 @@ func main () {
 
     var csvFilePath string = os.Args[1]
 
-    file,err = os.Open(csvFilePath);
+    file,err := os.Open(csvFilePath);
     if err != nil {
         panic(err)
     }
