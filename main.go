@@ -9,41 +9,28 @@ import (
     "os/exec"
     "time"
     "github.com/hekmon/transmissionrpc/v3"
-    "gopkg.in/yaml.v3"
+    "github.com/LucasNT/transmission-list-automation/config"
 )
-
-type Config struct {
-    Password string;
-    Url string;
-    Username string
-}
 
 const CONFIG_PATH string = "./config.yaml"
 
-func readConfigsFromYaml( configPath string ) (Config,error){
-    var config Config;
-    file, err := os.Open(configPath);
-    if err != nil {
-        return Config{}, err
-    }
-    decode := yaml.NewDecoder(file);
-    decode.Decode(&config)
-    return config,nil
-}
-
 func main () {
-    var config Config;
     var err error;
+
+    if len(os.Args) < 1 {
+        fmt.Fprintf(os.Stderr, "Need at least one argument" )
+        os.Exit(1);
+    }
     
-    if config,err = readConfigsFromYaml(CONFIG_PATH); err != nil {
+    if err = config.LoaderConfigs(CONFIG_PATH); err != nil {
         panic( err )
     }
 
-    endpoint, err := url.Parse(config.Url)
+    endpoint, err := url.Parse(config.Config.Url);
     if err != nil {
-        panic(err)
+        panic(err);
     }
-    endpoint.User = url.UserPassword(config.Username, config.Password);
+    endpoint.User = url.UserPassword(config.Config.Username, config.Config.Password);
     tbt, err := transmissionrpc.New(endpoint, nil)
     if err != nil {
         panic(err)
