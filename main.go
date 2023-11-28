@@ -1,4 +1,4 @@
-package main 
+package main
 
 import (
     "net/url"
@@ -8,7 +8,7 @@ import (
     "os/exec"
     "time"
     "github.com/LucasNT/transmission-list-automation/config"
-    "github.com/LucasNT/transmission-list-automation/bit_torrent_implementations"
+    "github.com/LucasNT/transmission-list-automation/externals/bit_torrent_implementations"
     "github.com/LucasNT/transmission-list-automation/interfaces"
 )
 
