@@ -5,4 +5,5 @@ type BitTorrentclient interface {
 	GetTorrentPercentComplete(id int64) (float64, error)
 	GetTorrentName(id int64) (string, error)
 	GetTorrentFiles(id int64) ([]string, error)
+	Close() error
 }

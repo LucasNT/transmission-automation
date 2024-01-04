@@ -64,3 +64,7 @@ func (t Transmission) GetTorrentFiles(id int64) ([]string, error) {
 	}
 	return filenameList, nil
 }
+
+func (t Transmission) Close() error {
+	return t.tbt.SessionClose(context.TODO())
+}
