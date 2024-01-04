@@ -1,7 +1,10 @@
 package config
 
 import (
+	"errors"
 	"testing"
+
+	"gopkg.in/yaml.v3"
 )
 
 func TestReadConfigsFromYaml(t *testing.T) {
@@ -42,9 +45,17 @@ func TestReadConfigsFromYaml(t *testing.T) {
 	}
 }
 
-func TestReadConfigsFromYamlError(t *testing.T) {
+func TestReadConfigsFromYamlNotFound(t *testing.T) {
 	err := LoaderConfigs("./testdata/nao_existe.yaml")
 	if err == nil {
 		t.Errorf("File %s, shouldn't exist", "./testdata/nao_existe.yaml")
+	}
+}
+
+func TestErrorDecodeYaml(t *testing.T) {
+	var typeError *yaml.TypeError
+	err := LoaderConfigs("./testdata/config_test3.yaml")
+	if !errors.As(err, &typeError) {
+		t.Errorf("Error returned was %v", err)
 	}
 }
