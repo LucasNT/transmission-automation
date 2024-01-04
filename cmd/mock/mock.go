@@ -36,7 +36,8 @@ func main() {
 	}
 	endpoint.User = url.UserPassword(config.Config.Username, config.Config.Password)
 	var bitTorrent interfaces.BitTorrentclient
-	bitTorrent, err = bitTorrentImplementation.NewTransmision(endpoint, nil)
+	//bitTorrent, err = bitTorrentImplementation.NewTransmision(endpoint, nil)
+	bitTorrent, err = bitTorrentImplementation.NewBitTorrentMock()
 
 	if err != nil {
 		panic(err)
@@ -65,7 +66,7 @@ func main() {
 		fmt.Println(tr_id)
 		percent := float64(0)
 		for percent != 1 {
-			time.Sleep(1 * time.Minute)
+			time.Sleep(1 * time.Second)
 			percent, err = bitTorrent.GetTorrentPercentComplete(tr_id)
 			if err != nil {
 				panic(err)
@@ -80,11 +81,19 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
-		cmd := exec.Command("cp", "--reflink=auto", "/data/torrents/"+listFileName[0], l[1])
+		//cmd := exec.Command("cp", "--reflink=auto", "/data/torrents/"+listFileName[0], l[1])
+		cmd := exec.Command("echo", "--reflink=auto", "/data/torrents/"+listFileName[0], l[1])
 
-		err = cmd.Run()
+		output, err := cmd.Output()
+
+		fmt.Println(string(output))
 
 		if err != nil {
+			var auxErr *exec.Error
+			if errors.As(err, &auxErr) {
+				fmt.Println("é um erro")
+			}
+			fmt.Println("a")
 			panic(err)
 		}
 
