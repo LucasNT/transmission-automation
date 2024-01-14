@@ -1,4 +1,4 @@
-module github.com/LucasNT/transmission-list-automation
+module github.com/LucasNT/transmission-automation
 
 go 1.21.1
 

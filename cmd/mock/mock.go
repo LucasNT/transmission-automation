@@ -9,9 +9,9 @@ import (
 	"os/exec"
 	"time"
 
-	"github.com/LucasNT/transmission-list-automation/config"
-	bitTorrentImplementation "github.com/LucasNT/transmission-list-automation/externals/bit_torrent_implementations"
-	"github.com/LucasNT/transmission-list-automation/interfaces"
+	"github.com/LucasNT/transmission-automation/config"
+	bitTorrentImplementation "github.com/LucasNT/transmission-automation/externals/bit_torrent_implementations"
+	"github.com/LucasNT/transmission-automation/interfaces"
 )
 
 const CONFIG_PATH string = "./config.yaml"
