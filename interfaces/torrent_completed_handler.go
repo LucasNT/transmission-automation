@@ -1,5 +1,5 @@
 package interfaces
 
 type TorrentCompletedHandler interface {
-	Exec(fileNames []string) error
+	CreateExec(config string) (func(fileName []string) (bool, error), error)
 }
