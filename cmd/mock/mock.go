@@ -11,6 +11,7 @@ import (
 
 	"github.com/LucasNT/transmission-automation/config"
 	bitTorrentImplementation "github.com/LucasNT/transmission-automation/externals/bit_torrent_implementations"
+	TorrentCompletedHandler "github.com/LucasNT/transmission-automation/externals/torrent_completed_handler"
 	"github.com/LucasNT/transmission-automation/interfaces"
 )
 
@@ -35,9 +36,16 @@ func main() {
 		panic(err)
 	}
 	endpoint.User = url.UserPassword(config.Config.Username, config.Config.Password)
+
+	var copy interfaces.TorrentCompletedHandler
 	var bitTorrent interfaces.BitTorrentclient
-	//bitTorrent, err = bitTorrentImplementation.NewTransmision(endpoint, nil)
-	bitTorrent, err = bitTorrentImplementation.NewBitTorrentMock()
+	tempDir, err := os.MkdirTemp("", "mockTransmission")
+	if err != nil {
+		panic(err)
+	}
+	defer os.RemoveAll(tempDir)
+	bitTorrent, err = bitTorrentImplementation.NewBitTorrentMock(tempDir)
+	copy, err = TorrentCompletedHandler.NewTorrentCompletedHandlerCopy(tempDir, tempDir)
 
 	if err != nil {
 		panic(err)
@@ -81,12 +89,16 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
-		//cmd := exec.Command("cp", "--reflink=auto", "/data/torrents/"+listFileName[0], l[1])
-		cmd := exec.Command("echo", "--reflink=auto", "/data/torrents/"+listFileName[0], l[1])
+		cmd, err := copy.CreateExec(l[1])
+		if err != nil {
+			panic(err)
+		}
 
-		output, err := cmd.Output()
+		ok, err := cmd(listFileName)
 
-		fmt.Println(string(output))
+		if !ok {
+			fmt.Println(err)
+		}
 
 		if err != nil {
 			var auxErr *exec.Error
