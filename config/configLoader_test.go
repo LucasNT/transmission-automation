@@ -32,6 +32,19 @@ func TestReadConfigsFromYaml(t *testing.T) {
 				Username: "",
 			},
 		},
+		{
+			name: "Load Config 4",
+			args: "./testdata/config_test4.yaml",
+			want: ConfigsValue{
+				Password: "senha_super_secreto",
+				Url:      "http://url_do_transmission/transmission/rpc/",
+				Username: "usuário",
+				CopyHandler: CopyConfig{
+					TorrentPath: "/data/Torrent",
+					DestinyPath: "/data/media",
+				},
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
