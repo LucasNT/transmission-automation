@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"net/url"
 	"os"
-	"os/exec"
 	"time"
 
 	"github.com/LucasNT/transmission-automation/config"
 	bitTorrentImplementation "github.com/LucasNT/transmission-automation/externals/bit_torrent_implementations"
+	TorrentCompletedHandler "github.com/LucasNT/transmission-automation/externals/torrent_completed_handler"
 	"github.com/LucasNT/transmission-automation/interfaces"
 )
 
@@ -35,7 +35,9 @@ func main() {
 	}
 	endpoint.User = url.UserPassword(config.Config.Username, config.Config.Password)
 	var bitTorrent interfaces.BitTorrentclient
+	var torrentHandler interfaces.TorrentCompletedHandler
 	bitTorrent, err = bitTorrentImplementation.NewTransmision(endpoint, nil)
+	torrentHandler, err = TorrentCompletedHandler.NewTorrentCompletedHandlerCopy(config.Config.CopyHandler.TorrentPath, config.Config.CopyHandler.DestinyPath)
 
 	if err != nil {
 		panic(err)
@@ -79,12 +81,16 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
-		cmd := exec.Command("cp", "--reflink=auto", "/data/torrents/"+listFileName[0], l[1])
-
-		err = cmd.Run()
+		cmd, err := torrentHandler.CreateExec(l[1])
 
 		if err != nil {
-			panic(err)
+			fmt.Printf("Erro ao criar o comando de copiar %s", err.Error())
+		}
+
+		_, err = cmd(listFileName)
+
+		if err != nil {
+			fmt.Printf("Erro ao copiar o arquivo: %s", err.Error())
 		}
 
 		l, err = reader.Read()
