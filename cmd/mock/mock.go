@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/csv"
 	"errors"
 	"fmt"
 	"net/url"
@@ -12,6 +11,7 @@ import (
 	"github.com/LucasNT/transmission-automation/config"
 	bitTorrentImplementation "github.com/LucasNT/transmission-automation/externals/bit_torrent_implementations"
 	TorrentCompletedHandler "github.com/LucasNT/transmission-automation/externals/torrent_completed_handler"
+	CsvTorrentEntryReader "github.com/LucasNT/transmission-automation/externals/torrent_entry_reader"
 	"github.com/LucasNT/transmission-automation/interfaces"
 )
 
@@ -39,6 +39,7 @@ func main() {
 
 	var copy interfaces.TorrentCompletedHandler
 	var bitTorrent interfaces.BitTorrentclient
+	var reader interfaces.TorrentEntryReader
 	tempDir, err := os.MkdirTemp("", "mockTransmission")
 	if err != nil {
 		panic(err)
@@ -61,13 +62,12 @@ func main() {
 
 	defer file.Close()
 
-	reader := csv.NewReader(file)
+	reader = CsvTorrentEntryReader.NewCsvTorrentEntryReader(file)
 
-	l, err := reader.Read()
-	fmt.Println(l, err)
+	magnetLink, handlerString, errReadTorrent := reader.ReadTorrentEntry()
 
-	for l != nil && err == nil {
-		tr_id, err := bitTorrent.TorrentAdd(l[0])
+	for errReadTorrent == nil {
+		tr_id, err := bitTorrent.TorrentAdd(magnetLink)
 		if err != nil {
 			panic(err)
 		}
@@ -89,7 +89,7 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
-		cmd, err := copy.CreateExec(l[1])
+		cmd, err := copy.CreateExec(handlerString)
 		if err != nil {
 			panic(err)
 		}
@@ -105,14 +105,15 @@ func main() {
 			if errors.As(err, &auxErr) {
 				fmt.Println("é um erro")
 			}
-			fmt.Println("a")
-			panic(err)
+			fmt.Println(err)
 		}
 
-		l, err = reader.Read()
+		magnetLink, handlerString, errReadTorrent = reader.ReadTorrentEntry()
 	}
-	if err != nil {
-		panic(err)
+	if errors.Is(errReadTorrent, interfaces.ErrNoTorrentEntry) {
+		fmt.Println("fim da execulção")
+	} else if errReadTorrent != nil {
+		panic(errReadTorrent)
 	}
 
 }
