@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"net/url"
 	"os"
@@ -12,12 +11,16 @@ import (
 	TorrentCompletedHandler "github.com/LucasNT/transmission-automation/externals/torrent_completed_handler"
 	CsvTorrentEntryReader "github.com/LucasNT/transmission-automation/externals/torrent_entry_reader"
 	"github.com/LucasNT/transmission-automation/interfaces"
+	useCases "github.com/LucasNT/transmission-automation/use_cases"
 )
 
 const CONFIG_PATH string = "./config.yaml"
 
 func main() {
 	var err error
+	var bitTorrent interfaces.BitTorrentclient
+	var torrentHandler interfaces.TorrentCompletedHandler
+	var reader interfaces.TorrentEntryReader
 
 	if len(os.Args) < 2 {
 		fmt.Fprintf(os.Stderr, "Need at least one argument")
@@ -28,15 +31,12 @@ func main() {
 		panic(err)
 	}
 
-	fmt.Println(config.Config)
-
 	endpoint, err := url.Parse(config.Config.Url)
 	if err != nil {
 		panic(err)
 	}
 	endpoint.User = url.UserPassword(config.Config.Username, config.Config.Password)
-	var bitTorrent interfaces.BitTorrentclient
-	var torrentHandler interfaces.TorrentCompletedHandler
+
 	bitTorrent, err = bitTorrentImplementation.NewTransmision(endpoint, nil)
 	torrentHandler, err = TorrentCompletedHandler.NewTorrentCompletedHandlerCopy(config.Config.CopyHandler.TorrentPath, config.Config.CopyHandler.DestinyPath)
 
@@ -54,53 +54,11 @@ func main() {
 
 	defer file.Close()
 
-	//reader := csv.NewReader(file)
-	var reader interfaces.TorrentEntryReader
 	reader = CsvTorrentEntryReader.NewCsvTorrentEntryReader(file)
 
-	magnetLink, handlerString, errReadTorrent := reader.ReadTorrentEntry()
-
-	for errReadTorrent == nil {
-		tr_id, err := bitTorrent.TorrentAdd(magnetLink)
-		if err != nil {
-			panic(err)
-		}
-		fmt.Println(tr_id)
-		percent := float64(0)
-		for percent != 1 {
-			time.Sleep(1 * time.Minute)
-			percent, err = bitTorrent.GetTorrentPercentComplete(tr_id)
-			if err != nil {
-				panic(err)
-			}
-			fileName, err := bitTorrent.GetTorrentName(tr_id)
-			if err != nil {
-				panic(err)
-			}
-			fmt.Println(fileName, percent)
-		}
-		listFileName, err := bitTorrent.GetTorrentFiles(tr_id)
-		if err != nil {
-			panic(err)
-		}
-		cmd, err := torrentHandler.CreateExec(handlerString)
-
-		if err != nil {
-			fmt.Printf("Erro ao criar o comando de copiar %s", err.Error())
-		}
-
-		_, err = cmd(listFileName)
-
-		if err != nil {
-			fmt.Printf("Erro ao copiar o arquivo: %s", err.Error())
-		}
-
-		magnetLink, handlerString, errReadTorrent = reader.ReadTorrentEntry()
+	fmt.Println("ola mundo")
+	err = useCases.ExecProgramn(bitTorrent, torrentHandler, reader, 1*time.Minute)
+	if err != nil {
+		panic(err)
 	}
-	if errors.Is(errReadTorrent, interfaces.ErrNoTorrentEntry) {
-		fmt.Println("fim da execulção")
-	} else if errReadTorrent != nil {
-		panic(errReadTorrent)
-	}
-
 }
