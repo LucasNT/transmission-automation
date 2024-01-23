@@ -2,10 +2,10 @@ package useCases
 
 import (
 	"errors"
-	"fmt"
 	"time"
 
 	"github.com/LucasNT/transmission-automation/interfaces"
+	log "github.com/sirupsen/logrus"
 )
 
 func ExecProgramn(bitTorrentClient interfaces.BitTorrentclient, torrentCompletedHandler interfaces.TorrentCompletedHandler, torrentEntryReader interfaces.TorrentEntryReader, sleepTime time.Duration) error {
@@ -14,10 +14,11 @@ func ExecProgramn(bitTorrentClient interfaces.BitTorrentclient, torrentCompleted
 
 	for errReadTorrent == nil {
 		tr_id, err := bitTorrentClient.TorrentAdd(magnetLink)
+		log.Info("Torrent added successfully")
 		if err != nil {
 			return err
 		}
-		fmt.Println(tr_id)
+		log.Debug(tr_id)
 		percent := float64(0)
 		for percent != 1 {
 			time.Sleep(sleepTime)
@@ -25,11 +26,11 @@ func ExecProgramn(bitTorrentClient interfaces.BitTorrentclient, torrentCompleted
 			if err != nil {
 				return err
 			}
-			fileName, err := bitTorrentClient.GetTorrentName(tr_id)
+			torrentName, err := bitTorrentClient.GetTorrentName(tr_id)
 			if err != nil {
 				return err
 			}
-			fmt.Println(fileName, percent)
+			log.Debugf("Torrent: '%s' is %f Downloaded", torrentName, percent)
 		}
 		listFileName, err := bitTorrentClient.GetTorrentFiles(tr_id)
 		if err != nil {
@@ -38,19 +39,20 @@ func ExecProgramn(bitTorrentClient interfaces.BitTorrentclient, torrentCompleted
 		cmd, err := torrentCompletedHandler.CreateExec(handlerString)
 
 		if err != nil {
-			fmt.Printf("Erro ao criar o comando de copiar %s", err.Error())
+			log.Errorf("Erro ao criar o comando de copiar %s", err.Error())
 		}
 
 		_, err = cmd(listFileName)
 
 		if err != nil {
-			fmt.Printf("Erro ao copiar o arquivo: %s", err.Error())
+			log.Errorf("Erro ao copiar o arquivo: %s", err.Error())
 		}
+		log.Info("Torrent Handled completed successfully")
 
 		magnetLink, handlerString, errReadTorrent = torrentEntryReader.ReadTorrentEntry()
 	}
 	if errors.Is(errReadTorrent, interfaces.ErrNoTorrentEntry) {
-		fmt.Println("fim da execulção")
+		log.Info("fim da execulção")
 	} else if errReadTorrent != nil {
 		return errReadTorrent
 	}
