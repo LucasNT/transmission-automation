@@ -18,8 +18,8 @@ jobs:
           CGO_ENABLED=1 GOOS=linux go test -race -cover ./...
       - name: build the programn
         run: |
-          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build ./cmd/main/transmission-list-automation
-          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build ./cmd/mock/mock
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build ./cmd/main/transmission-list-automation.go
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build ./cmd/mock/mock.go
           sha256sum mock > mock.sha256
           sha256sum transmission-list-automation > transmission-list-automation.sha256
       - name: create release
