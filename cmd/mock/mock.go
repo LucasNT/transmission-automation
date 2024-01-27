@@ -30,6 +30,7 @@ func main() {
 	defer logFile.Close()
 	multi := io.MultiWriter(logFile, os.Stderr)
 	log.SetOutput(multi)
+	log.SetLevel(log.DebugLevel)
 	log.Info("Programn Started initialization")
 
 	if len(os.Args) < 2 {
