@@ -1,4 +1,4 @@
-package CsvTorrentEntryReader
+package TorrentEntryReader
 
 import (
 	"encoding/csv"

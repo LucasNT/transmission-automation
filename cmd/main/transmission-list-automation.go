@@ -10,7 +10,7 @@ import (
 	"github.com/LucasNT/transmission-automation/config"
 	bitTorrentImplementation "github.com/LucasNT/transmission-automation/externals/bit_torrent_implementations"
 	TorrentCompletedHandler "github.com/LucasNT/transmission-automation/externals/torrent_completed_handler"
-	CsvTorrentEntryReader "github.com/LucasNT/transmission-automation/externals/torrent_entry_reader"
+	TorrentEntryReader "github.com/LucasNT/transmission-automation/externals/torrent_entry_reader"
 	"github.com/LucasNT/transmission-automation/interfaces"
 	useCases "github.com/LucasNT/transmission-automation/use_cases"
 	log "github.com/sirupsen/logrus"
@@ -71,7 +71,7 @@ func main() {
 
 	defer file.Close()
 
-	reader = CsvTorrentEntryReader.NewCsvTorrentEntryReader(file)
+	reader = TorrentEntryReader.NewCsvTorrentEntryReader(file)
 
 	log.Info("Programn finished initialization")
 	err = useCases.ExecProgramn(bitTorrent, torrentHandler, reader, 1*time.Minute)
