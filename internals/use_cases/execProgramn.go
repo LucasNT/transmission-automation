@@ -4,7 +4,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/LucasNT/transmission-automation/interfaces"
+	"github.com/LucasNT/transmission-automation/internals/interfaces"
 	log "github.com/sirupsen/logrus"
 )
 

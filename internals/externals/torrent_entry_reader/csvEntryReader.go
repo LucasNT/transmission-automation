@@ -7,7 +7,7 @@ import (
 	"io"
 	"os"
 
-	"github.com/LucasNT/transmission-automation/interfaces"
+	"github.com/LucasNT/transmission-automation/internals/interfaces"
 )
 
 type CsvTorrentEntryReader struct {
