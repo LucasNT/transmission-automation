@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"os"
 
 	"github.com/LucasNT/transmission-automation/internals/interfaces"
 )
@@ -14,7 +13,7 @@ type CsvTorrentEntryReader struct {
 	csvReader *csv.Reader
 }
 
-func NewCsvTorrentEntryReader(csvFile *os.File) CsvTorrentEntryReader {
+func NewCsvTorrentEntryReader(csvFile io.Reader) CsvTorrentEntryReader {
 	var ret CsvTorrentEntryReader = CsvTorrentEntryReader{}
 	ret.csvReader = csv.NewReader(csvFile)
 	return ret
