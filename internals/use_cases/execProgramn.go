@@ -8,16 +8,16 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func ExecProgramn(bitTorrentClient interfaces.BitTorrentclient, torrentCompletedHandler interfaces.TorrentCompletedHandler, torrentEntryReader interfaces.TorrentEntryReader, sleepTime time.Duration) error {
+func ExecProgramn(bitTorrentClient interfaces.BitTorrentclient, torrentCompletedHandler interfaces.TorrentCompletedHandler, torrentEntryReader interfaces.TorrentEntryReader, torrentdownloadedinformation interfaces.TorrentDownloadedInformation, sleepTime time.Duration) error {
 
 	magnetLink, handlerString, errReadTorrent := torrentEntryReader.ReadTorrentEntry()
 
 	for errReadTorrent == nil {
 		tr_id, err := bitTorrentClient.TorrentAdd(magnetLink)
-		log.Info("Torrent added successfully")
 		if err != nil {
 			return err
 		}
+		log.Info("Torrent added successfully")
 		log.Debug(tr_id)
 		percent := float64(0)
 		for percent != 1 {
@@ -31,6 +31,9 @@ func ExecProgramn(bitTorrentClient interfaces.BitTorrentclient, torrentCompleted
 				return err
 			}
 			log.Debugf("Torrent: '%s' is %f Downloaded", torrentName, percent)
+			if err := torrentdownloadedinformation.SetTorrentInformation(torrentName, percent); err != nil {
+				return err
+			}
 		}
 		listFileName, err := bitTorrentClient.GetTorrentFiles(tr_id)
 		if err != nil {
