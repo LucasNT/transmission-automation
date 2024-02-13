@@ -22,10 +22,12 @@ jobs:
         run: |
           CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build ./cmd/main/transmission-list-automation.go
           CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build ./cmd/mock/mock.go
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build ./cmd/web/web.go
           sha256sum mock > mock.sha256
           sha256sum transmission-list-automation > transmission-list-automation.sha256
+          sha256sum web > web.sha256
       - name: create release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release create --notes-from-tag  $(echo ${{github.ref}} | cut -d '/' -f '3-') mock mock.sha256 transmission-list-automation transmission-list-automation.sha256
+          gh release create --notes-from-tag  $(echo ${{github.ref}} | cut -d '/' -f '3-') mock mock.sha256 transmission-list-automation transmission-list-automation.sha256 web web.sha256
