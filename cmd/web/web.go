@@ -129,7 +129,8 @@ func main() {
 	for err != nil {
 		transmission, err = bitTorrentImplementation.NewTransmision(endpoint, nil)
 		if err != nil {
-			logrus.Fatal("Failed to Connect to bitTorrent Client ", err)
+			logrus.Errorf("Failed to Connect to bitTorrent Client: %v ", err)
+			time.Sleep(time.Minute * 2)
 		}
 	}
 	defer transmission.Close()
