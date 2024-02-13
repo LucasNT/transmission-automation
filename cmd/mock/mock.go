@@ -6,12 +6,13 @@ import (
 	"net/url"
 	"os"
 
-	"github.com/LucasNT/transmission-automation/config"
-	bitTorrentImplementation "github.com/LucasNT/transmission-automation/externals/bit_torrent_implementations"
-	TorrentCompletedHandler "github.com/LucasNT/transmission-automation/externals/torrent_completed_handler"
-	CsvTorrentEntryReader "github.com/LucasNT/transmission-automation/externals/torrent_entry_reader"
-	"github.com/LucasNT/transmission-automation/interfaces"
-	useCases "github.com/LucasNT/transmission-automation/use_cases"
+	"github.com/LucasNT/transmission-automation/internals/config"
+	bitTorrentImplementation "github.com/LucasNT/transmission-automation/internals/externals/bit_torrent_implementations"
+	TorrentCompletedHandler "github.com/LucasNT/transmission-automation/internals/externals/torrent_completed_handler"
+	torrentdownloadedinformation "github.com/LucasNT/transmission-automation/internals/externals/torrent_downloaded_information"
+	CsvTorrentEntryReader "github.com/LucasNT/transmission-automation/internals/externals/torrent_entry_reader"
+	"github.com/LucasNT/transmission-automation/internals/interfaces"
+	useCases "github.com/LucasNT/transmission-automation/internals/use_cases"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -77,7 +78,7 @@ func main() {
 	reader = CsvTorrentEntryReader.NewCsvTorrentEntryReader(file)
 
 	log.Info("Programn finished initialization")
-	err = useCases.ExecProgramn(bitTorrent, torrentHandler, reader, 0)
+	err = useCases.ExecProgramn(bitTorrent, torrentHandler, reader, torrentdownloadedinformation.TorrentDownloadedInformationVoid{}, 0)
 	if err != nil {
 		log.Fatal("Programn failed ", err)
 	}
